@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tareas de trabajo</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f5bea">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#1b2a41;--muted:#6b7a90;--line:#d9e0e9;--accent:#2f5bea;--on:#fff;--rec:#d92d20;
+--u0:#8c9bb0;--u1:#2f5bea;--u2:#e08a00;--u3:#d92d20}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1720;--card:#18222e;--ink:#e6ecf3;--muted:#8c9bb0;--line:#2a3646;--accent:#7c9cff;--on:#0f1720;--rec:#ff6b5e;
+--u0:#8c9bb0;--u1:#7c9cff;--u2:#f5a524;--u3:#ff6b5e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+main{max-width:560px;margin:0 auto;padding:28px 0 48px}
+h1{font-size:1.9rem;margin:0 0 4px;letter-spacing:-.02em}
+#count{color:var(--muted);margin:0 0 18px}
+form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px;display:grid;gap:12px}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+.row{display:flex;gap:8px}
+input[type=text],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px}
+.row input,.row textarea{flex:1}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+.mic{flex:none;width:48px;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:1.25rem}
+.mic[aria-pressed=true]{background:var(--rec);color:#fff;border-color:var(--rec)}
+.mic[hidden]{display:none}
+.add{background:var(--accent);color:var(--on);padding:13px;font-weight:700}
+#status{min-height:1.2em;margin:0;font-size:.85rem;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filters button{background:none;color:var(--muted);padding:6px 12px;border:1px solid var(--line)}
+.filters button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+li{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--u0);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+li[data-u="1"]{border-left-color:var(--u1)}li[data-u="2"]{border-left-color:var(--u2)}li[data-u="3"]{border-left-color:var(--u3)}
+.top{display:flex;gap:12px;align-items:flex-start}
+.top input{width:24px;height:24px;accent-color:var(--accent);flex:none;margin-top:2px}
+.title{flex:1;font-weight:600;word-break:break-word;white-space:pre-wrap}
+li.done .title{color:var(--muted);text-decoration:line-through}
+.parts{margin:0;color:var(--muted);font-size:.95rem;white-space:pre-wrap;word-break:break-word}
+.parts b{color:var(--ink)}
+.bottom{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.bottom select{width:auto;padding:7px 10px;font-weight:600}
+.del{background:none;color:var(--muted);padding:6px 10px;text-decoration:underline;font-size:.9rem}
+.empty{background:none;border:1px dashed var(--line);border-left:1px dashed var(--line);color:var(--muted);text-align:center;padding:24px 14px}
+#clear{margin-top:14px;background:none;color:var(--muted);text-decoration:underline;padding:6px 0}
+.sync{margin-top:28px;padding-top:16px;border-top:1px solid var(--line)}
+.sync .add{padding:0 16px}
+.link{background:none;color:var(--muted);text-decoration:underline;padding:8px 0;font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Tareas de trabajo</h1>
+  <p id="count" aria-live="polite"></p>
+
+  <form id="form">
+    <div>
+      <label for="titulo">Título o descripción</label>
+      <div class="row">
+        <input type="text" id="titulo" placeholder="Ej.: Revisar bomba del cuarto 2" autocomplete="off" required>
+        <button type="button" class="mic" data-target="titulo" aria-pressed="false" aria-label="Dictar título" hidden>🎤</button>
+      </div>
+    </div>
+    <div>
+      <label for="repuestos">Repuestos requeridos</label>
+      <div class="row">
+        <textarea id="repuestos" placeholder="Ej.: 2 juntas, 1 filtro"></textarea>
+        <button type="button" class="mic" data-target="repuestos" aria-pressed="false" aria-label="Dictar repuestos" hidden>🎤</button>
+      </div>
+    </div>
+    <div>
+      <label for="urgencia">Nivel de urgencia</label>
+      <select id="urgencia">
+        <option value="0">Baja</option>
+        <option value="1" selected>Media</option>
+        <option value="2">Alta</option>
+        <option value="3">Urgente</option>
+      </select>
+    </div>
+    <p id="status" aria-live="polite"></p>
+    <button type="submit" class="add">Añadir tarea</button>
+  </form>
+
+  <div class="filters" id="filters">
+    <button data-f="all" aria-pressed="true">Todas</button>
+    <button data-f="open" aria-pressed="false">Pendientes</button>
+    <button data-f="done" aria-pressed="false">Hechas</button>
+  </div>
+  <ul id="list"></ul>
+  <button id="clear" hidden>Borrar tareas hechas</button>
+
+  <section class="sync">
+    <label for="codigo">Código de sincronización</label>
+    <div class="row">
+      <input type="text" id="codigo" placeholder="Mínimo 8 letras o números" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" id="activar" class="add">Activar</button>
+    </div>
+    <button type="button" id="gen" class="link">Generar un código nuevo</button>
+    <p id="syncStatus" aria-live="polite" style="margin:0;font-size:.85rem;color:var(--muted)"></p>
+  </section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const KEY = 'tareas-trabajo-v2';
+const NIVELES = ['Baja', 'Media', 'Alta', 'Urgente'];
+let tasks = [], filter = 'all';
+try { tasks = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { tasks = []; }
+const $ = id => document.getElementById(id);
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {} push(); };
+
+function render(){
+  const list = $('list'); list.innerHTML = '';
+  const live = tasks.filter(t => !t.del);
+  const shown = live
+    .filter(t => filter === 'all' || (filter === 'done') === t.done)
+    .sort((a, b) => a.done - b.done || b.urgencia - a.urgencia || b.id - a.id);
+  if (!shown.length){
+    const li = document.createElement('li'); li.className = 'empty';
+    li.textContent = live.length ? 'No hay tareas en esta vista.' : 'Aún no hay tareas. Pulsa 🎤 y dicta la primera.';
+    list.appendChild(li);
+  }
+  shown.forEach(t => {
+    const li = document.createElement('li');
+    li.dataset.u = t.urgencia; if (t.done) li.className = 'done';
+
+    const top = document.createElement('div'); top.className = 'top';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = t.done;
+    cb.setAttribute('aria-label', 'Marcar como hecha');
+    cb.onchange = () => { t.done = cb.checked; t.mod = Date.now(); save(); render(); };
+    const ti = document.createElement('div'); ti.className = 'title'; ti.textContent = t.titulo;
+    top.append(cb, ti); li.appendChild(top);
+
+    if (t.repuestos){
+      const p = document.createElement('p'); p.className = 'parts';
+      const b = document.createElement('b'); b.textContent = 'Repuestos: ';
+      p.append(b, t.repuestos); li.appendChild(p);
+    }
+
+    const bottom = document.createElement('div'); bottom.className = 'bottom';
+    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Nivel de urgencia');
+    NIVELES.forEach((n, i) => { const o = new Option(n, i); o.selected = i === t.urgencia; sel.add(o); });
+    sel.onchange = () => { t.urgencia = +sel.value; t.mod = Date.now(); save(); render(); };
+    const del = document.createElement('button'); del.className = 'del'; del.textContent = 'Eliminar';
+    del.onclick = () => { if (confirm('¿Eliminar esta tarea?')){ t.del = true; t.mod = Date.now(); save(); render(); } };
+    bottom.append(sel, del); li.appendChild(bottom);
+    list.appendChild(li);
+  });
+  const open = live.filter(t => !t.done).length;
+  $('count').textContent = open === 1 ? '1 tarea pendiente' : open + ' tareas pendientes';
+  $('clear').hidden = !live.some(t => t.done);
+  document.querySelectorAll('#filters button').forEach(b => b.setAttribute('aria-pressed', b.dataset.f === filter));
+}
+
+$('form').onsubmit = e => {
+  e.preventDefault();
+  const titulo = $('titulo').value.trim(); if (!titulo) return;
+  tasks.push({ id: Date.now(), titulo, repuestos: $('repuestos').value.trim(), urgencia: +$('urgencia').value, done: false, mod: Date.now() });
+  $('titulo').value = ''; $('repuestos').value = ''; $('urgencia').value = '1';
+  $('status').textContent = ''; save(); render();
+};
+$('filters').onclick = e => { if (e.target.dataset.f){ filter = e.target.dataset.f; render(); } };
+$('clear').onclick = () => { tasks.forEach(t => { if (t.done && !t.del){ t.del = true; t.mod = Date.now(); } }); save(); render(); };
+
+// Dictado por voz
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR){
+  let rec = null, activeBtn = null;
+  const stop = () => { if (rec) rec.stop(); };
+  document.querySelectorAll('.mic').forEach(btn => {
+    btn.hidden = false;
+    btn.onclick = () => {
+      const wasActive = activeBtn === btn;
+      stop();
+      if (wasActive) return;
+      const field = $(btn.dataset.target);
+      rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = false; rec.continuous = true;
+      activeBtn = btn; btn.setAttribute('aria-pressed', 'true');
+      $('status').textContent = 'Escuchando… pulsa 🎤 de nuevo para parar.';
+      rec.onresult = ev => {
+        let txt = '';
+        for (let i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) txt += ev.results[i][0].transcript;
+        txt = txt.trim();
+        if (txt){
+          const cur = field.value.trim();
+          const sep = cur ? (field.tagName === 'TEXTAREA' ? ', ' : ' ') : '';
+          field.value = cur + sep + txt;
+        }
+      };
+      rec.onerror = ev => {
+        $('status').textContent = ev.error === 'not-allowed'
+          ? 'No hay permiso para usar el micrófono. Actívalo en los ajustes del navegador.'
+          : 'No se pudo dictar (' + ev.error + '). Inténtalo de nuevo.';
+      };
+      rec.onend = () => {
+        btn.setAttribute('aria-pressed', 'false'); activeBtn = null; rec = null;
+        if ($('status').textContent.startsWith('Escuchando')) $('status').textContent = '';
+      };
+      rec.start();
+    };
+  });
+} else {
+  $('status').textContent = 'Este navegador no admite dictado en la página. Usa el micrófono del teclado del móvil.';
+}
+render();
+
+// Sincronización entre dispositivos (Firebase Firestore)
+// Pega aquí la configuración de tu proyecto de Firebase, por ejemplo:
+// { apiKey: "...", authDomain: "...", projectId: "...", appId: "..." }
+const FIREBASE_CONFIG = null;
+
+let db = null, docRef = null, unsub = null;
+const setSync = m => { $('syncStatus').textContent = m; };
+const merge = (a, b) => {
+  const m = new Map();
+  [...a, ...b].forEach(t => { const o = m.get(t.id); if (!o || (t.mod || 0) > (o.mod || 0)) m.set(t.id, t); });
+  return [...m.values()];
+};
+const ahead = remote => tasks.some(t => { const r = remote.find(x => x.id === t.id); return !r || (t.mod || 0) > (r.mod || 0); });
+
+function push(){
+  if (!docRef) return;
+  db.runTransaction(async tx => {
+    const snap = await tx.get(docRef);
+    tx.set(docRef, { tasks: merge(snap.exists ? (snap.data().tasks || []) : [], tasks) });
+  }).then(() => setSync('Sincronizado ✓'), () => setSync('Sin conexión. Se enviará cuando vuelva.'));
+}
+
+function connect(code){
+  if (unsub){ unsub(); unsub = null; }
+  docRef = null;
+  if (!code){ setSync('Sin sincronizar. Escribe o genera un código.'); return; }
+  if (!FIREBASE_CONFIG || !window.firebase){ setSync('Falta configurar Firebase en index.html.'); return; }
+  if (!db){ firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); }
+  docRef = db.collection('listas').doc(code);
+  setSync('Conectando…');
+  unsub = docRef.onSnapshot(snap => {
+    const remote = snap.exists ? (snap.data().tasks || []) : [];
+    tasks = merge(tasks, remote);
+    try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {}
+    render(); setSync('Sincronizado ✓');
+    if (ahead(remote)) push();
+  }, err => setSync('Error de sincronización (' + err.code + ').'));
+}
+
+$('activar').onclick = () => {
+  const code = $('codigo').value.trim();
+  if (!/^[A-Za-z0-9_-]{8,}$/.test(code)){ setSync('El código debe tener al menos 8 letras o números, sin espacios.'); return; }
+  try { localStorage.setItem('tareas-codigo', code); } catch (e) {}
+  connect(code);
+};
+$('gen').onclick = () => {
+  const c = 'abcdefghjkmnpqrstuvwxyz23456789', a = new Uint32Array(16);
+  crypto.getRandomValues(a);
+  $('codigo').value = Array.from(a, n => c[n % c.length]).join('');
+  setSync('Código generado. Pulsa Activar y escríbelo igual en tus otros dispositivos.');
+};
+let saved = ''; try { saved = localStorage.getItem('tareas-codigo') || ''; } catch (e) {}
+$('codigo').value = saved; connect(saved);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
